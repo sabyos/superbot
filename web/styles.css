@@ -27,7 +27,7 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 
 /* Sidebar */
 .sidebar {
-  width: 380px; flex-shrink: 0;
+  width: 190px; flex-shrink: 0;
   background: var(--bg-sidebar);
   display: flex; flex-direction: column;
   padding: 16px 14px 14px;
