@@ -123,6 +123,7 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .screen-shield { position: absolute; inset: 0; cursor: default; }
 .screen-shield[hidden] { display: none; }
 .screen-msg { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--text-dim); }
+.screen-msg[hidden] { display: none; } /* else it covers the screen and swallows every click */
 .question .open-screen { margin: 4px 0 6px; background: var(--blue); color: #fff; padding: 7px 14px; border-radius: 999px; font-size: 15px; }
 
 .messages {
