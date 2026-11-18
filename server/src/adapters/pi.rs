@@ -60,6 +60,11 @@ impl Adapter for Pi {
 
     /// From `pi --list-models`: models with credentials set up. Columns:
     /// provider, model, context, max-out, thinking (yes/no), images.
+    fn resume_args(&self, session_id: &str, state_dir: &std::path::Path) -> Vec<String> {
+        let dir = state_dir.join("pi-sessions").display().to_string();
+        vec!["--session-dir".into(), dir, "--session-id".into(), session_id.into()]
+    }
+
     fn models(&self) -> Vec<ModelOption> {
         let efforts: Vec<String> = ["off", "minimal", "low", "medium", "high", "xhigh", "max"].map(String::from).into();
         output("pi", &["--list-models"])

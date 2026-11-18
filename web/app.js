@@ -465,14 +465,21 @@ const ICONS = {
   chevron: '<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',
   trash: '<svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg>',
 };
-const details = { open: false, tab: "activity", routines: [] };
+const details = { open: false, tab: "activity", routines: [], session: null };
 
 async function openDetails() {
   details.open = true;
   if (!$("screen").hidden) closeScreen(); // one right-hand panel at a time
   details.routines = [];
+  details.session = null;
   renderDetails();
-  try { details.routines = await api("GET", `/api/bots/${activeId}/routines`); } catch {}
+  const id = activeId;
+  const [routines, session] = await Promise.all([
+    api("GET", `/api/bots/${id}/routines`).catch(() => []),
+    api("GET", `/api/bots/${id}/session`).catch(() => null),
+  ]);
+  if (id !== activeId) return;
+  Object.assign(details, { routines, session });
   renderDetails();
 }
 function closeDetails() { details.open = false; renderDetails(); }
@@ -499,7 +506,15 @@ function renderDetails() {
     <div class="d-card"><div class="d-item d-computer">
       <div class="d-text"><div>Bot's computer</div><div class="d-sub">${b.working ? esc(b.status || "Working") : "Asleep"}</div></div>
       <div class="d-screen ${b.working ? "awake" : ""}">${avatar(b.color, b.shape, 40)}${b.working ? "" : "<i>z</i>"}</div>
-    </div></div>`;
+    </div></div>
+    <div class="d-section"><span>Session</span></div>
+    <div class="d-card">${details.session
+      ? `<div class="d-item d-session"><div class="d-text">
+          <div>Open in ${esc(HARNESS_NAMES[details.session.harness] || details.session.harness)}</div>
+          <div class="d-sub">Run on the server. Wait until the Bot is idle.</div>
+          <code class="d-cmd">${esc(details.session.command)}</code></div>
+          <button class="d-copy" id="d-copy" title="Copy command">Copy</button></div>`
+      : `<div class="d-item d-empty">No session yet. Send a message first.</div>`}</div>`;
   const list = harnesses.length ? harnesses : Object.keys(HARNESS_NAMES);
   const settings = `
     <div class="d-section"><span>Bot</span></div>
@@ -532,6 +547,11 @@ $("details").addEventListener("click", async (e) => {
   if (t.id === "d-close") return closeDetails();
   if (t.dataset.tab) { details.tab = t.dataset.tab; return renderDetails(); }
   if (t.dataset.prefill) { $("input").value = t.dataset.prefill; $("input").focus(); return; }
+  if (t.id === "d-copy") {
+    try { await navigator.clipboard.writeText(details.session.command); t.textContent = "Copied"; }
+    catch { getSelection().selectAllChildren(t.parentElement.querySelector(".d-cmd")); }
+    return;
+  }
   if (t.id === "d-hide") return patchBot({ hidden: !bot(activeId).hidden });
   if (t.dataset.routine) {
     const r = details.routines.find((x) => x.id === t.dataset.routine);

@@ -107,6 +107,7 @@ async fn main() {
         .route("/bots/{id}/routines", get(list_routines).post(create_routine))
         .route("/routines/{id}", patch(update_routine).delete(delete_routine))
         .route("/bots/{id}/screen", get(screen_info))
+        .route("/bots/{id}/session", get(session_info))
         .route("/ask", post(ask))
         .route("/handoff", post(handoff));
     let router = Router::new()
@@ -417,6 +418,24 @@ async fn ask(State(app): State<AppState>, Json(v): Json<Value>) -> Result<String
         Some(reply) => reply,
         None => format!("{} is still working on it. Their reply will arrive later as a new message.", to.name),
     })
+}
+
+// Session: a shell command that opens the Bot's harness session in a terminal.
+
+async fn session_info(State(app): State<AppState>, Path(id): Path<String>) -> Res {
+    let bot = need_bot(&app, &id)?;
+    let sid = bot.session_id.ok_or_else(|| not_found("Session"))?;
+    let adapter = adapters::get(&bot.harness).ok_or_else(|| not_found("Harness"))?;
+    let q = |s: &str| {
+        let safe = !s.is_empty() && s.chars().all(|c| c.is_ascii_alphanumeric() || "-_./=:@%+".contains(c));
+        if safe { s.to_string() } else { format!("'{}'", s.replace('\'', "'\\''")) }
+    };
+    let mut cmd = format!("cd {} && {}", q(&app.cfg.workspace.display().to_string()), adapter.bin());
+    for a in adapter.resume_args(&sid, &app.bot_dir(&id)) {
+        cmd.push(' ');
+        cmd.push_str(&q(&a));
+    }
+    Ok(Json(json!({ "harness": bot.harness, "sessionId": sid, "command": cmd })))
 }
 
 // Screens: the live view of a Bot's screen. Opening it starts the screen.

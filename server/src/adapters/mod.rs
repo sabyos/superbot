@@ -49,6 +49,8 @@ pub trait Adapter: Send {
     fn on_event(&mut self, e: &Value, out: &mut Vec<AgentEvent>);
     /// Models this harness can run here, with their reasoning efforts. Blocking.
     fn models(&self) -> Vec<ModelOption>;
+    /// Arguments that open this session interactively in a terminal (run in the workspace).
+    fn resume_args(&self, session_id: &str, state_dir: &std::path::Path) -> Vec<String>;
 }
 
 #[derive(Clone, serde::Serialize)]

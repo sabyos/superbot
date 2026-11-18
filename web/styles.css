@@ -298,6 +298,11 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .d-sub { color: var(--text-dim); font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .d-empty { color: var(--text-faint); font-size: 15px; }
 .d-danger, .d-danger svg { color: #f08a8a !important; }
+.d-session { align-items: flex-start; }
+.d-session .d-sub { white-space: normal; }
+.d-cmd { display: block; margin-top: 8px; padding: 8px 10px; background: #111; border: 1px solid #262626; border-radius: 8px; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; color: #ddd; word-break: break-all; user-select: all; }
+.d-copy { padding: 6px 12px; border-radius: 999px; border: 1px solid #2c2c2c; background: #161616; color: #ccc; font-size: 14px; }
+.d-copy:hover { color: #fff; background: #222; }
 .d-computer { padding: 12px 12px 12px 16px; }
 .d-screen { width: 104px; height: 64px; border-radius: 10px; background: linear-gradient(135deg, #2c2c2c, #1d1d1d); display: grid; place-items: center; position: relative; }
 .d-screen:not(.awake) .avatar { opacity: .45; filter: grayscale(1); }

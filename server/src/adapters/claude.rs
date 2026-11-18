@@ -66,6 +66,10 @@ impl Adapter for Claude {
 
     /// Claude Code has no command to list models, so this is the current lineup.
     /// Update it when Anthropic ships new models.
+    fn resume_args(&self, session_id: &str, _state_dir: &std::path::Path) -> Vec<String> {
+        vec!["--resume".into(), session_id.into()]
+    }
+
     fn models(&self) -> Vec<ModelOption> {
         let efforts: Vec<String> = ["low", "medium", "high", "xhigh", "max"].map(String::from).into();
         [
